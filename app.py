@@ -323,12 +323,12 @@ def create_age_chart(demographics):
         ),
         text=[f"{p}%" for p in percentages],
         textposition='auto',
-        textfont=dict(color="#FFFFFF", size=12, family="Inter", weight="bold")
+        textfont=dict(color="#FFFFFF", size=12, family="Inter")
     ))
     
     fig.update_layout(
         title="Real-Time Age Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
@@ -375,7 +375,7 @@ def create_gender_chart(demographics):
     
     fig.update_layout(
         title="Real-Time Gender Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
@@ -412,7 +412,7 @@ def create_intentionality_chart(intentionality_data):
     
     fig.update_layout(
         title="Intent Breakdown",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         polar=dict(
             radialaxis=dict(
                 visible=True,
@@ -454,7 +454,7 @@ def create_keyword_chart(primary_kw, secondary_kw):
     
     fig.update_layout(
         title="Keyword Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
@@ -510,7 +510,7 @@ def calculate_content_score(result):
 
 # Header
 st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">AI-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">LIZ-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
 
 # Input section
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -755,7 +755,7 @@ if url:
 st.markdown("""
     <div style="text-align: center; margin-top: 4rem; padding: 2rem; color: #6B7280; border-top: 1px solid #374151;">
         <p style="font-family: 'Inter', sans-serif; font-size: 0.875rem;">
-            Powered by Contextual AI Intelligence
+            Powered by Contextual LIZ - AI Intelligence
         </p>
     </div>
 """, unsafe_allow_html=True)
