@@ -510,7 +510,7 @@ def calculate_content_score(result):
 
 # Header
 st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">AI-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">LIZ-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
 
 # Input section
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -755,7 +755,7 @@ if url:
 st.markdown("""
     <div style="text-align: center; margin-top: 4rem; padding: 2rem; color: #6B7280; border-top: 1px solid #374151;">
         <p style="font-family: 'Inter', sans-serif; font-size: 0.875rem;">
-            Powered by Contextual AI Intelligence
+            Powered by Contextual LIZ - AI Intelligence
         </p>
     </div>
 """, unsafe_allow_html=True)
