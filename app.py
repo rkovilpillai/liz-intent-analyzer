@@ -323,12 +323,12 @@ def create_age_chart(demographics):
         ),
         text=[f"{p}%" for p in percentages],
         textposition='auto',
-        textfont=dict(color="#FFFFFF", size=12, family="Inter", weight="bold")
+        textfont=dict(color="#FFFFFF", size=12, family="Inter")
     ))
     
     fig.update_layout(
         title="Real-Time Age Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
@@ -375,7 +375,7 @@ def create_gender_chart(demographics):
     
     fig.update_layout(
         title="Real-Time Gender Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
@@ -412,7 +412,7 @@ def create_intentionality_chart(intentionality_data):
     
     fig.update_layout(
         title="Intent Breakdown",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         polar=dict(
             radialaxis=dict(
                 visible=True,
@@ -454,7 +454,7 @@ def create_keyword_chart(primary_kw, secondary_kw):
     
     fig.update_layout(
         title="Keyword Distribution",
-        title_font=dict(color="#f7c3dc", family="Inter", size=16, weight=600),
+        title_font=dict(color="#f7c3dc", family="Inter", size=16),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color="#9CA3AF", family="Inter"),
