@@ -533,8 +533,8 @@ def create_keyword_chart(primary_kw, secondary_kw):
 # Function to calculate performance metrics
 def calculate_intent_accuracy(result):
     intention = result.get('intention', {})
-    confidence = intention.get('confidence', 'Low')
-    confidence_accuracy = {'High': 85, 'Medium': 70, 'Low': 50}
+    confidence = intention.get('confidence', 'low')
+    confidence_accuracy = {'high': 85, 'medium': 70, 'low': 50}
     accuracy = confidence_accuracy.get(confidence, 85)
     
     intentionality = result.get('intentionality_breakdown', {})
@@ -542,6 +542,63 @@ def calculate_intent_accuracy(result):
         accuracy += 10
     
     return min(accuracy, 99)
+
+def calculate_intentionality_score(result):
+    """
+    Calculate intentionality score based on intent breakdown and confidence
+    Score reflects likelihood of user taking action (0-100)
+    """
+    intentionality = result.get('intentionality_breakdown', {})
+    intention = result.get('intention', {})
+    confidence = intention.get('confidence', 'medium')
+    
+    if not intentionality:
+        return 0
+    
+    # Base weights for different intent types (action likelihood)
+    intent_weights = {
+        'transactional': 95,    # Ready to buy/act NOW
+        'commercial': 75,       # Researching to buy SOON  
+        'navigational': 45,     # Seeking specific brand/site
+        'informational': 15     # Just learning/browsing
+    }
+    
+    # Calculate weighted score based on intent distribution
+    weighted_score = 0
+    for intent_type, percentage in intentionality.items():
+        weight = intent_weights.get(intent_type.lower(), 0)
+        weighted_score += (percentage / 100) * weight
+    
+    # Apply confidence multiplier
+    confidence_multipliers = {
+        'high': 1.0,      # No adjustment
+        'medium': 0.85,   # Slight reduction
+        'low': 0.7        # Larger reduction
+    }
+    
+    confidence_multiplier = confidence_multipliers.get(confidence, 0.85)
+    final_score = weighted_score * confidence_multiplier
+    
+    return min(round(final_score), 100)
+
+def get_intentionality_grade(score):
+    """Convert intentionality score to letter grade"""
+    if score >= 85:
+        return "A+", "Very High Action Intent"
+    elif score >= 75:
+        return "A", "High Action Intent"
+    elif score >= 65:
+        return "B+", "Good Action Intent"
+    elif score >= 55:
+        return "B", "Moderate Action Intent"
+    elif score >= 45:
+        return "C+", "Some Action Intent"
+    elif score >= 35:
+        return "C", "Low Action Intent"
+    elif score >= 25:
+        return "D", "Very Low Action Intent"
+    else:
+        return "F", "Minimal Action Intent"
 
 def calculate_content_score(result):
     score = 0
@@ -567,7 +624,7 @@ def calculate_content_score(result):
 
 # Header
 st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">AI-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">LIZ - powered content intelligence and audience insights</p>', unsafe_allow_html=True)
 
 # Input section
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -585,7 +642,7 @@ if url:
         display_error("invalid_url", processed_url)
         st.stop()
     
-    with st.spinner("Analyzing content..."):
+    with st.spinner("LIZ is Analyzing content..."):
         try:
             response = requests.get(f"{n8n_webhook_url}?url={processed_url}")
             try:
@@ -616,7 +673,7 @@ if url:
                     # Overview metrics
                     st.markdown('<h2 class="section-header">Overview</h2>', unsafe_allow_html=True)
                     
-                    col1, col2, col3, col4 = st.columns(4)
+                    col1, col2, col3, col4, col5 = st.columns(5)
                     
                     with col1:
                         intention = result.get('intention', {})
@@ -662,10 +719,36 @@ if url:
                             </div>
                         """, unsafe_allow_html=True)
                     
+                    # Added new col5 with intentionality score:
+                    with col5:
+                        # NEW: Intentionality Score
+                        intentionality_score = calculate_intentionality_score(result)
+                        grade, grade_desc = get_intentionality_grade(intentionality_score)
+                        
+                        # Color coding for score
+                        if intentionality_score >= 75:
+                            score_color = "#10B981"  # Green
+                        elif intentionality_score >= 50:
+                            score_color = "#F59E0B"  # Orange
+                        else:
+                            score_color = "#EF4444"  # Red
+                            
+                        st.markdown(f"""
+                            <div class="metric-card">
+                                <div class="metric-title">Intention Score</div>
+                                <div class="metric-value" style="color: {score_color};">{intentionality_score}/100</div>
+                                <div class="metric-subtitle">
+                                    <span style="color: {score_color}; font-weight: 600;">{grade}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    
                     # Analytics Charts
                     st.markdown('<h2 class="section-header">Analytics</h2>', unsafe_allow_html=True)
                     
                     col1, col2, col3 = st.columns(3)
+
+                    # col1, col2, col3, col4, col5 = st.columns(5)
                     
                     with col1:
                         age_chart = create_age_chart(demographics)
@@ -751,6 +834,7 @@ if url:
                     analysis_metadata = result.get("analysis_metadata", {})
                     # intent_accuracy = analysis_metadata.get("overall_score", 0)
                     intent_accuracy = calculate_intent_accuracy(result)
+                    intentionality_score = calculate_intentionality_score(result)
                     content_score = analysis_metadata.get("content_quality_score", 0)
                     keyword_count = len(result.get("primary_keywords", [])) + len(result.get("secondary_keywords", []))
                     audience_complexity = len(result.get("audience_profile", {}).get("type", []))
@@ -762,6 +846,10 @@ if url:
                                 <div class="stat-value">{intent_accuracy}%</div>
                             </div>
                             <div class="stat-item">
+                                <div class="stat-label">Intention Score</div>
+                                <div class="stat-value">{intentionality_score}/100</div>
+                            </div>
+                            <div class="stat-item">
                                 <div class="stat-label">Keyword Count</div>
                                 <div class="stat-value">{keyword_count}</div>
                             </div>
@@ -769,9 +857,30 @@ if url:
                                 <div class="stat-label">Audience Segments</div>
                                 <div class="stat-value">{audience_complexity}</div>
                             </div>
-                            <div class="stat-item">
-                                <div class="stat-label">Content Score</div>
-                                <div class="stat-value">{content_score}/100</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    # Intentionality Score Explanation
+                    grade, grade_desc = get_intentionality_grade(intentionality_score)
+                    st.markdown(f"""
+                        <div class="content-card">
+                            <div class="card-title">📊 Intentionality Score Analysis</div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
+                                    <div>
+                                        <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{grade_desc}</div>
+                                        <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {intentionality_score}/100</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="color: #D1D5DB; line-height: 1.5;">
+                                <strong>What this means:</strong> This score predicts the likelihood of users taking action (clicking, buying, engaging) based on the article's intent distribution and confidence level.
+                                <br><br>
+                                <strong>Intent Breakdown:</strong>
+                                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                                    {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
+                                </ul>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
