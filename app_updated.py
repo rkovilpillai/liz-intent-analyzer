@@ -6,6 +6,8 @@ import json
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.express as px
+import re
+from urllib.parse import urlparse
 
 # Page configuration
 st.set_page_config(
@@ -13,6 +15,61 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# Function to validate URL format
+def is_valid_url(url):
+    """Validate URL format before sending to API"""
+    if not url or not url.strip():
+        return False, "Please enter a URL"
+    
+    url = url.strip()
+    
+    # Add protocol if missing
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+    
+    # Validate URL format
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)', re.IGNORECASE)
+    
+    if url_pattern.match(url):
+        return True, url
+    else:
+        return False, "Please enter a valid URL (e.g., https://example.com/article)"
+
+# Function to display error messages with styling
+def display_error(error_type, message, suggestions=None, technical_details=None):
+    icon = "⚠️"
+    color = "#CD574C"  # Customize as needed
+
+    error_html = f"""
+    <div style="margin-top: 1.5rem; color: {color};">
+        <h4 style="color: {color}; font-family: Inter; margin-bottom: 0.5rem;">{icon} {message}</h4>
+    """
+    if suggestions:
+        error_html += "<ul style='text-align: left; color: #D1D5DB; line-height: 1.6;'>"
+        for s in suggestions:
+            error_html += f"<li>{s}</li>"
+        error_html += "</ul>"
+    if technical_details:
+        error_html += f"""
+        <details style="margin-top: 1rem; text-align: left;">
+            <summary style="color: #9CA3AF; cursor: pointer; font-size: 0.9rem;">Technical Details</summary>
+            <div style="margin-top: 0.5rem; padding: 1rem; background: #272b39bf; border-radius: 8px; font-family: monospace; font-size: 0.8rem; color: #9CA3AF;">
+                {technical_details}
+            </div>
+        </details>
+        """
+    error_html += "</div>"
+
+    # ✅ RENDER the HTML nicely instead of displaying as raw text
+    st.markdown(error_html, unsafe_allow_html=True)
+
 
 # Updated styling with your custom colors
 st.markdown("""
@@ -478,7 +535,7 @@ def calculate_intent_accuracy(result):
     intention = result.get('intention', {})
     confidence = intention.get('confidence', 'Low')
     confidence_accuracy = {'High': 85, 'Medium': 70, 'Low': 50}
-    accuracy = confidence_accuracy.get(confidence, 50)
+    accuracy = confidence_accuracy.get(confidence, 85)
     
     intentionality = result.get('intentionality_breakdown', {})
     if intentionality and any(val > 0 for val in intentionality.values()):
@@ -510,7 +567,7 @@ def calculate_content_score(result):
 
 # Header
 st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">LIZ-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">AI-powered content intelligence and audience insights</p>', unsafe_allow_html=True)
 
 # Input section
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -518,12 +575,36 @@ with col2:
     url = st.text_input("Article URL", placeholder="Enter article URL to analyze...", label_visibility="collapsed")
 
 # N8N webhook URL
-n8n_webhook_url = "https://rajkpillai.app.n8n.cloud/webhook/contextual-engine"
+n8n_webhook_url = "https://rajkpillai.app.n8n.cloud/webhook/contextual-engine-v2"
 
 if url:
+    # Validate URL format first
+    is_valid, processed_url = is_valid_url(url)
+    
+    if not is_valid:
+        display_error("invalid_url", processed_url)
+        st.stop()
+    
     with st.spinner("Analyzing content..."):
         try:
-            response = requests.get(f"{n8n_webhook_url}?url={url}")
+            response = requests.get(f"{n8n_webhook_url}?url={processed_url}")
+            try:
+                result_data = response.json()
+            except json.JSONDecodeError:
+                st.error(f"API returned non-JSON data. Status code: {response.status_code}")
+                st.stop()
+
+            # 👇 If error object is present, display nicely
+            if isinstance(result_data, list) and "error" in result_data[0]:
+                result = result_data[0]
+                display_error(
+                    error_type=result.get("error_type", "general"),
+                    message=result.get("message", "An error occurred."),
+                    suggestions=result.get("suggestions", []),
+                    technical_details=f"URL: {processed_url}\\nTimestamp: {result.get('timestamp', 'Unknown')}\\nHTTP Status: {response.status_code}"
+                )
+                st.stop()  # Stop further processing
+            
             if response.status_code == 200:
                 try:
                     result_data = response.json()
@@ -662,14 +743,18 @@ if url:
                             </div>
                         """, unsafe_allow_html=True)
                     
+                    
+                    
                     # Performance Metrics
                     st.markdown('<h2 class="section-header">Performance Metrics</h2>', unsafe_allow_html=True)
-                    
+
+                    analysis_metadata = result.get("analysis_metadata", {})
+                    # intent_accuracy = analysis_metadata.get("overall_score", 0)
                     intent_accuracy = calculate_intent_accuracy(result)
-                    content_score = calculate_content_score(result)
-                    keyword_count = len(primary_keywords) + len(secondary_keywords)
-                    audience_complexity = len(result.get('audience_profile', {}).get('type', []))
-                    
+                    content_score = analysis_metadata.get("content_quality_score", 0)
+                    keyword_count = len(result.get("primary_keywords", [])) + len(result.get("secondary_keywords", []))
+                    audience_complexity = len(result.get("audience_profile", {}).get("type", []))
+
                     st.markdown(f"""
                         <div class="stats-grid">
                             <div class="stat-item">
@@ -690,6 +775,7 @@ if url:
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
+
                     
                     # Audience Profile
                     st.markdown('<h2 class="section-header">Audience Profile</h2>', unsafe_allow_html=True)
@@ -745,6 +831,39 @@ if url:
                         
                 except Exception as e:
                     st.error(f"Error parsing response: {e}")
+            
+            elif response.status_code == 400:
+                # Handle N8N error responses (status 400)
+                try:
+                    result_data = response.json()
+                    # Right after: result_data = response.json()
+                    if isinstance(result_data, list) and "error" in result_data[0]:
+                        result = result_data[0]
+                        display_error(
+                            error_type=result.get("error_type", "general"),
+                            message=result.get("message", "An error occurred."),
+                            suggestions=result.get("suggestions", []),
+                            technical_details=f"URL: {processed_url}\\nTimestamp: {result.get('timestamp', 'Unknown')}"
+                        )
+                        st.stop()
+
+                    # if isinstance(result_data, list):
+                    #     result = result_data[0]
+                    else:
+                        result = result_data
+                    
+                    # Extract error information from N8N response
+                    error_type = result.get('error_type', 'general')
+                    message = result.get('message', 'An error occurred during analysis')
+                    suggestions = result.get('suggestions', [])
+                    
+                    # Technical details - use our processed URL
+                    technical_details = f"URL: {processed_url}\nTimestamp: {result.get('timestamp', 'Unknown')}\nHTTP Status: {response.status_code}"
+                    
+                    display_error(error_type, message, suggestions, technical_details)
+                    
+                except json.JSONDecodeError:
+                    st.error(f"API request failed. Status code: {response.status_code}")
             else:
                 st.error(f"API request failed. Status code: {response.status_code}")
                 
@@ -755,7 +874,7 @@ if url:
 st.markdown("""
     <div style="text-align: center; margin-top: 4rem; padding: 2rem; color: #6B7280; border-top: 1px solid #374151;">
         <p style="font-family: 'Inter', sans-serif; font-size: 0.875rem;">
-            Powered by Contextual LIZ - AI Intelligence
+            Powered by Contextual AI Intelligence
         </p>
     </div>
 """, unsafe_allow_html=True)
