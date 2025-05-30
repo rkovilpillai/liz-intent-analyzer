@@ -626,15 +626,22 @@ def calculate_content_score(result):
 st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">LIZ - powered content intelligence and audience insights</p>', unsafe_allow_html=True)
 
-# Input section
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    url = st.text_input("Article URL", placeholder="Enter article URL to analyze...", label_visibility="collapsed")
+# Input section with FORM to prevent bot spam
+with st.form("analysis_form"):
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        url = st.text_input("Article URL", placeholder="Enter article URL to analyze...", label_visibility="collapsed")
+    
+    # Submit button prevents bots from auto-triggering API calls
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        submitted = st.form_submit_button("🔍 Analyze Article", use_container_width=True)
 
 # N8N webhook URL
 n8n_webhook_url = "https://rajkpillai.app.n8n.cloud/webhook/contextual-engine-v2"
 
-if url:
+# CHANGE THIS LINE: from "if url:" to "if submitted and url:"
+if submitted and url:  # <-- ONLY TRIGGERS ON BUTTON CLICK, NOT WHILE TYPING
     # Validate URL format first
     is_valid, processed_url = is_valid_url(url)
     
