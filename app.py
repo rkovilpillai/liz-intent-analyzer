@@ -574,9 +574,7 @@ st.markdown("""
     font-size: 1rem;
     margin-bottom: -1rem;
     color: #cd574c;
-}
-            
-
+    }         
     [data-testid="stSidebar"],
     [data-testid="stSidebar"] > div,
     .stApp section[data-testid="stSidebar"],
@@ -586,13 +584,14 @@ st.markdown("""
     }
 
     /* Force all sidebar content to have correct background */
-    [data-testid="stSidebar"] * {
-        background-color: transparent !important;
-    }
 
     [data-testid="stSidebar"] > div > div {
         background-color: rgb(35, 39, 54) !important;
+    }       
+    [data-testid="stWidgetLabel"] * {
+    color: #ffc8c8 !important;
     }
+
     </style>
 """, unsafe_allow_html=True)
 
