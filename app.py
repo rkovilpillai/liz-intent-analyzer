@@ -173,6 +173,14 @@ st.markdown("""
         gap: 0.5rem;
     }
             
+    .st-emotion-cache-6qob1r {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: overlay;
+    background-color: #181c2b;
+}
+            
     .st-emotion-cache-1f3w014 {
     vertical-align: middle;
     overflow: hidden;
@@ -521,7 +529,7 @@ st.markdown("""
 .main .block-container {
     padding-top: 1rem !important;
 }
-    section.stSidebar.st-emotion-cache-11ig4q4.edtmxes0 {
+    section.stSidebar.st-emotion-cache {
     background-color: rgb(35 39 54);
     }
             
@@ -567,6 +575,24 @@ st.markdown("""
     margin-bottom: -1rem;
     color: #cd574c;
 }
+            
+
+    [data-testid="stSidebar"],
+    [data-testid="stSidebar"] > div,
+    .stApp section[data-testid="stSidebar"],
+    .stApp section[data-testid="stSidebar"] > div {
+        background-color: rgb(35, 39, 54) !important;
+        border-right: 1px solid #374151 !important;
+    }
+
+    /* Force all sidebar content to have correct background */
+    [data-testid="stSidebar"] * {
+        background-color: transparent !important;
+    }
+
+    [data-testid="stSidebar"] > div > div {
+        background-color: rgb(35, 39, 54) !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
