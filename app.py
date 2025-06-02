@@ -940,7 +940,7 @@ with st.sidebar:
         # Validate URL format
         is_valid, processed_url = is_valid_url(url)
         if not is_valid:
-            st.error(processed_url)
+            display_error("invalid_url", processed_url)
         else:
             # Start analysis
             st.session_state.analysis_complete = False
@@ -976,10 +976,12 @@ with st.sidebar:
                                 # Handle error responses
                                 if isinstance(result_data, list) and len(result_data) > 0 and "error" in result_data[0]:
                                     result = result_data[0]
-                                    st.error(f"⚠️ {result.get('message', 'An error occurred.')}")
-                                    if result.get("suggestions"):
-                                        for suggestion in result.get("suggestions", []):
-                                            st.info(f"💡 {suggestion}")
+                                    display_error(
+                                        error_type=result.get("error_type", "api_error"),
+                                        message=result.get("message", "An error occurred during analysis."),
+                                        suggestions=result.get("suggestions", []),
+                                        technical_details=f"URL: {processed_url}" + (f"\nCampaign: {campaign_definition}\nVertical: {vertical}" if st.session_state.campaign_analysis else "")
+                                    )
                                 else:
                                     if isinstance(result_data, list):
                                         result = result_data[0]
@@ -992,10 +994,23 @@ with st.sidebar:
                                     st.rerun()
                                     
                             except Exception as e:
-                                st.error(f"Error parsing response: {e}")
+                                display_error(
+                                    error_type="parse_error",
+                                    message="Failed to process the analysis results",
+                                    suggestions=["Try analyzing the article again", "Check if the URL is accessible"],
+                                    technical_details=f"Parse error: {str(e)}"
+                                )
                         else:
-                            st.error(f"API request failed. Status code: {response.status_code}")
-                            st.write("Response:", response.text[:500])
+                            display_error(
+                                error_type="api_request_failed",
+                                message=f"API request failed with status code {response.status_code}",
+                                suggestions=[
+                                    "Check your internet connection",
+                                    "Try again in a few moments",
+                                    "Verify the URL is accessible"
+                                ],
+                                technical_details=f"Response: {response.text[:500]}"
+                            )
                     else:
                         api_url = n8n_webhook_url_campaign
                         params = {
@@ -1014,10 +1029,12 @@ with st.sidebar:
                                 # Handle error responses
                                 if isinstance(result_data, list) and len(result_data) > 0 and "error" in result_data[0]:
                                     result = result_data[0]
-                                    st.error(f"⚠️ {result.get('message', 'An error occurred.')}")
-                                    if result.get("suggestions"):
-                                        for suggestion in result.get("suggestions", []):
-                                            st.info(f"💡 {suggestion}")
+                                    display_error(
+                                        error_type=result.get("error_type", "api_error"),
+                                        message=result.get("message", "An error occurred during analysis."),
+                                        suggestions=result.get("suggestions", []),
+                                        technical_details=f"URL: {processed_url}" + (f"\nCampaign: {campaign_definition}\nVertical: {vertical}" if st.session_state.campaign_analysis else "")
+                                    )
                                 else:
                                     if isinstance(result_data, list):
                                         result = result_data[0]
@@ -1030,13 +1047,31 @@ with st.sidebar:
                                     st.rerun()
                                     
                             except Exception as e:
-                                st.error(f"Error parsing response: {e}")
+                                display_error(
+                                    error_type="parse_error",
+                                    message="Failed to process the analysis results",
+                                    suggestions=["Try analyzing the article again", "Check if the URL is accessible"],
+                                    technical_details=f"Parse error: {str(e)}"
+                                )
                         else:
-                            st.error(f"API request failed. Status code: {response.status_code}")
-                            st.write("Response:", response.text[:500])
+                            display_error(
+                                error_type="api_request_failed",
+                                message=f"API request failed with status code {response.status_code}",
+                                suggestions=[
+                                    "Check your internet connection",
+                                    "Try again in a few moments",
+                                    "Verify the URL is accessible"
+                                ],
+                                technical_details=f"Response: {response.text[:500]}"
+                            )
 
                 except Exception as e:
-                    st.error(f"Request failed: {e}")
+                    display_error(
+                        error_type="parse_error",
+                        message="Failed to process the analysis results",
+                        suggestions=["Try analyzing the article again", "Check if the URL is accessible"],
+                        technical_details=f"Parse error: {str(e)}"
+                    )
     
     # Help section
     st.markdown("""
