@@ -164,7 +164,7 @@ st.markdown("""
     
     .sidebar-section-title {
         font-family: 'Inter', sans-serif;
-        font-size: 1.5rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #CD574C;
         margin-bottom: 1rem;
@@ -397,130 +397,34 @@ st.markdown("""
         background: #181c2b;
     }
     
-    /* Results area styling */
-.results-container {
-    min-height: 80vh;
-    background: #181c2b;
-}
-
-/* Main container for waiting state - constrained to main content area */
-.waiting-state {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: calc(100vh - 8rem);
-    min-height: 600px;
-    width: 100%;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
-/* Video background - contained within main content area */
-.video__bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-}
-
-/* Content overlay - fixed positioning relative to main area */
-.audiences-home-page__content {
-    position: fixed;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    padding: 2rem;
-}
-
-/* Logo styling */
-.logo__home {
-    margin-bottom: 3rem;
-    max-width: 150px;
-    height: auto;
-    z-index: 11;
-}
-
-/* Content wrapper */
-.home-content__wrapper--inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 800px;
-}
-
-.home-content__wrapper--flex {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    text-align: center;
-}
-
-/* Text styling - fixed and centered */
-.home__text {
-    margin: 0;
-    padding: 1.5rem 2rem;
-    max-width: 700px;
-    text-align: center;
-    line-height: 45px;
-    letter-spacing: 12px;
-    color: #ffffff;
-    font-size: 24px !important;
-    font-weight: 700;
-    font-family: "Poppins", sans-serif;
-    background: #282b38b3;
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* CTA wrapper */
-.home-content__cta__wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-/* Button styling - fixed positioning */
-.button.home-content__cta {
-    background: rgba(0, 0, 0, 0.2);
-    border: 2px solid #ffffff;
-    color: #ffffff;
-    padding: 15px 30px;
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-    backdrop-filter: blur(10px);
-}
-
-.button.home-content__cta:hover {
-    background: #ffffff;
-    color: #000000;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-}
-
-/* Ensure main content area doesn't scroll when video is playing */
-.main .block-container {
-    padding-top: 1rem !important;
-}
+    .waiting-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+        color: #9CA3AF;
+    }
+    
+    .waiting-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+    
+    .waiting-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .waiting-subtext {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        opacity: 0.7;
+    }
     section.stSidebar.st-emotion-cache-11ig4q4.edtmxes0 {
     background-color: rgb(35 39 54);
     }
@@ -1026,28 +930,17 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # MAIN CONTENT AREA - Results Section (80% width)
-# st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
-# st.markdown('<p class="subtitle">Liz - powered content intelligence with optional campaign analysis</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Liz - powered content intelligence with optional campaign analysis</p>', unsafe_allow_html=True)
 
 # Results Container
 if not st.session_state.analysis_complete or st.session_state.analysis_results is None:
     # Waiting state
     st.markdown("""
         <div class="waiting-state">
-            <video loop autoplay muted class="video__bg">
-                <source src="https://lizos.seedtag.com/assets/videos/loop_videos/red_network/red_network_loop.webm" type="video/webm">
-                Your browser does not support the video tag.
-            </video>
-            <div class="audiences-home-page__content">
-                <div class="home-content__wrapper--inner">
-                    <div class="home-content__wrapper--flex">
-                        <p class="home__text">My name is LIZ and I'll be your guide around the Contextual Universe, how can I help you?</p>
-                        <div class="home-content__cta__wrapper">
-                            <div class="button home-content__cta"> ← Enter an article URL in the sidebar to get started</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="waiting-icon">🔮</div>
+            <div class="waiting-text">Ready to Analyze</div>
+            <div class="waiting-subtext">Enter an article URL in the sidebar and click analyze to get started</div>
         </div>
     """, unsafe_allow_html=True)
 else:
@@ -1472,20 +1365,20 @@ else:
                 <div class="summary-card">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                         <div>
-                            <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Content Intent</div>
-                            <div class="metric-value" >{performance_summary.get('content_intent', 'Unknown').title()}</div>
+                            <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Content Intent</div>
+                            <div style="color: #FFFFFF; font-weight: 600;">{performance_summary.get('content_intent', 'Unknown').title()}</div>
                         </div>
                         <div>
-                            <div class="metric-title" style=" font-size: 0.875rem; margin-bottom: 0.25rem;">Campaign Suitability</div>
-                            <div class="metric-value" >{performance_summary.get('campaign_suitability', 'Unknown').title()}</div>
+                            <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Campaign Suitability</div>
+                            <div style="color: #FFFFFF; font-weight: 600;">{performance_summary.get('campaign_suitability', 'Unknown').title()}</div>
                         </div>
                         <div>
-                            <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Overall Relevancy</div>
-                            <div class="metric-value" >{performance_summary.get('overall_relevancy', 'Unknown').title()}</div>
+                            <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Overall Relevancy</div>
+                            <div style="color: #FFFFFF; font-weight: 600;">{performance_summary.get('overall_relevancy', 'Unknown').title()}</div>
                         </div>
                         <div>
-                            <div class="metric-title" style="margin-bottom: 0.25rem;">Final Recommendation</div>
-                            <div class="metric-value" style="color: {'#10B981' if 'recommend' in performance_summary.get('recommendation', '') else '#F59E0B'}; font-weight: 600;">
+                            <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Final Recommendation</div>
+                            <div style="color: {'#10B981' if 'recommend' in performance_summary.get('recommendation', '') else '#F59E0B'}; font-weight: 600;">
                                 {performance_summary.get('recommendation', 'Unknown').replace('_', ' ').title()}
                             </div>
                         </div>
