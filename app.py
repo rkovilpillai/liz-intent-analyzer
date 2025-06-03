@@ -846,6 +846,55 @@ def calculate_intentionality_score(result):
     
     return min(round(final_score), 100)
 
+def calculate_final_intention_score(result, campaign_relevancy=None):
+    """
+    Calculate the final intention score based on:
+    - 80% Campaign Fit Score (if available)
+    - 20% Action Intent Score
+    
+    If campaign analysis is disabled, returns only the Action Intent Score
+    """
+    # Get the action intent score (intentionality score)
+    action_intent_score = calculate_intentionality_score(result)
+    
+    # If no campaign data, return just the action intent score
+    if not campaign_relevancy:
+        return action_intent_score, "action_only"
+    
+    # Get campaign fit score
+    campaign_fit_score = campaign_relevancy.get('overall_relevancy_score', 0)
+    
+    # Calculate weighted final score: 80% campaign fit + 20% action intent
+    final_score = (campaign_fit_score * 0.8) + (action_intent_score * 0.2)
+    
+    return round(final_score), "combined"
+
+def get_final_intention_grade(score, score_type="combined"):
+    """
+    Get grade and description for the final intention score
+    """
+    if score_type == "action_only":
+        prefix = "Action Intent: "
+    else:
+        prefix = "Overall Intent: "
+    
+    if score >= 90:
+        return "A+", f"{prefix}Exceptional"
+    elif score >= 80:
+        return "A", f"{prefix}Excellent"
+    elif score >= 70:
+        return "B+", f"{prefix}Very Good"
+    elif score >= 60:
+        return "B", f"{prefix}Good"
+    elif score >= 50:
+        return "C+", f"{prefix}Fair"
+    elif score >= 40:
+        return "C", f"{prefix}Below Average"
+    elif score >= 30:
+        return "D", f"{prefix}Poor"
+    else:
+        return "F", f"{prefix}Very Poor"
+
 def get_intentionality_grade(score):
     if score >= 85:
         return "A+", "Very High Action Intent"
@@ -867,7 +916,7 @@ def get_intentionality_grade(score):
 def calculate_content_score(result):
     score = 0
     confidence = result.get('intention', {}).get('confidence', 'Low')
-    confidence_scores = {'High': 40, 'Medium': 30, 'Low': 20}
+    confidence_scores = {'high': 40, 'medium': 30, 'low': 20}
     score += confidence_scores.get(confidence, 20)
     
     primary_kw = len(result.get('primary_keywords', []))
@@ -1194,27 +1243,53 @@ else:
                 </div>
             """, unsafe_allow_html=True)
         
+        
         with col5:
-            # Intentionality Score
-            intentionality_score = calculate_intentionality_score(result)
-            grade, grade_desc = get_intentionality_grade(intentionality_score)
-            
-            if intentionality_score >= 75:
-                score_color = "#10B981"
-            elif intentionality_score >= 50:
-                score_color = "#F59E0B"
-            else:
-                score_color = "#EF4444"
+            campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
+            if st.session_state.campaign_analysis and campaign_score is not None:
+                # Final Intentionality Score
+                final_intentionality_score,score_type = calculate_final_intention_score(result,campaign_relevancy)
+                final_grade, final_grade_desc = get_final_intention_grade(final_intentionality_score,score_type)
+                intentionality_score = calculate_intentionality_score(result)
+                grade, grade_desc = get_intentionality_grade(intentionality_score)
                 
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-title">Intent score</div>
-                    <div class="metric-value" style="color: {score_color};">{intentionality_score}/100</div>
-                    <div class="metric-subtitle">
-                        <span style="color: {score_color}; font-weight: 600;">{grade}</span>
+                if final_intentionality_score >= 70:
+                    score_color = "#10B981"
+                elif final_intentionality_score >= 50:
+                    score_color = "#F59E0B"
+                else:
+                    score_color = "#EF4444"
+                    
+                st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-title">Intention score</div>
+                        <div class="metric-value" style="color: {score_color};">{final_intentionality_score}/100</div>
+                        <div class="metric-subtitle">
+                            <span style="color: {score_color}; font-weight: 600;">{final_grade}</span>
+                        </div>
                     </div>
-                </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+            else:
+                # Intentionality Score
+                intentionality_score = calculate_intentionality_score(result)
+                grade, grade_desc = get_intentionality_grade(intentionality_score)
+                
+                if intentionality_score >= 75:
+                    score_color = "#10B981"
+                elif intentionality_score >= 50:
+                    score_color = "#F59E0B"
+                else:
+                    score_color = "#EF4444"
+                    
+                st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-title">Article Intent</div>
+                        <div class="metric-value" style="color: {score_color};">{intentionality_score}/100</div>
+                        <div class="metric-subtitle">
+                            <span style="color: {score_color}; font-weight: 600;">{grade}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
         
         # Content Summary
         st.markdown('<h3 class="section-header">📝 Summary</h3>', unsafe_allow_html=True)
@@ -1227,29 +1302,78 @@ else:
         """, unsafe_allow_html=True)
         
         # Intentionality Score Explanation
-        grade, grade_desc = get_intentionality_grade(intentionality_score)
-        st.markdown(f"""
-            <div class="content-card">
-                <div class="card-title">📊 Intentionality Score Analysis</div>
-                <div style="margin-bottom: 1rem;">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                        <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
-                        <div>
-                            <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{grade_desc}</div>
-                            <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {intentionality_score}/100</div>
+        # Dynamic Intentionality Score Explanation
+        campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
+
+        if st.session_state.campaign_analysis and campaign_score is not None:
+            # Final Intention Score Explanation (Combined Score)
+            final_intentionality_score, score_type = calculate_final_intention_score(result, campaign_relevancy)
+            final_grade, final_grade_desc = get_final_intention_grade(final_intentionality_score, score_type)
+            
+            # Calculate individual components for breakdown
+            action_intent_score = calculate_intentionality_score(result)
+            
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">📊 Overall Intention Score Analysis</div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 2rem; color: {'#10B981' if final_intentionality_score >= 75 else '#F59E0B' if final_intentionality_score >= 50 else '#EF4444'};">{final_grade}</span>
+                            <div>
+                                <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{final_grade_desc}</div>
+                                <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {final_intentionality_score}/100</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="color: #D1D5DB; line-height: 1.5;">
+                        <strong>What this means:</strong> This comprehensive score combines campaign relevancy (80%) with user action intent (20%) to predict overall content performance for your specific campaign objectives.
+                        <br><br>
+                        <strong>Score Breakdown:</strong>
+                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                            <li><strong>Campaign Fit:</strong> {campaign_score}/100 (80% weight) - How well the content aligns with your campaign goals</li>
+                            <li><strong>Action Intent:</strong> {action_intent_score}/100 (20% weight) - Likelihood of users taking action based on content intent</li>
+                        </ul>
+                        <br>
+                        <strong>Calculation:</strong> ({campaign_score} × 0.8) + ({action_intent_score} × 0.2) = {final_intentionality_score}
+                        <br><br>
+                        <strong>Content Intent Distribution:</strong>
+                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                            {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
+                        </ul>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Action Intent Score Explanation (Content Analysis Only)
+            intentionality_score = calculate_intentionality_score(result)
+            grade, grade_desc = get_intentionality_grade(intentionality_score)
+            
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">📊 Action Intent Score Analysis</div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
+                            <div>
+                                <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{grade_desc}</div>
+                                <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {intentionality_score}/100</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="color: #D1D5DB; line-height: 1.5;">
+                        <strong>What this means:</strong> This score predicts the likelihood of users taking action (clicking, buying, engaging) based on the article's intent distribution and confidence level.
+                        <br><br>
+                        <strong>Intent Breakdown:</strong>
+                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                            {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
+                        </ul>
+                        <br>
+                        <div style="background: #374151; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <strong>💡 Tip:</strong> Enable "Campaign Relevancy Analysis" in the sidebar to get a comprehensive score that includes how well this content fits your specific campaign objectives.
                         </div>
                     </div>
                 </div>
-                <div style="color: #D1D5DB; line-height: 1.5;">
-                    <strong>What this means:</strong> This score predicts the likelihood of users taking action (clicking, buying, engaging) based on the article's intent distribution and confidence level.
-                    <br><br>
-                    <strong>Intent Breakdown:</strong>
-                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                        {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
-                    </ul>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
         st.markdown('<h2 class="section-header">📊 Performance Metrics</h2>', unsafe_allow_html=True)
 
@@ -1266,7 +1390,7 @@ else:
             with col1:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div class="metric-title">Intention Score</div>
+                        <div class="metric-title">Article Intent</div>
                         <div class="metric-value">{intentionality_score}/100</div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1274,7 +1398,7 @@ else:
             with col2:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div class="metric-title">Campaign Fit</div>
+                        <div class="metric-title">Campaign Relevancy</div>
                         <div class="metric-value">{campaign_score}/100</div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1426,7 +1550,7 @@ else:
                 <div class="content-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                         <div>
-                            <h3 style="color: #f7c3dc; margin: 0; font-size: 1.25rem;">Campaign Fit Assessment</h3>
+                            <h3 style="color: #f7c3dc; margin: 0; font-size: 1.25rem;">Campaign Relevancy Assessment</h3>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{recommendation_emoji}</div>
@@ -1492,7 +1616,7 @@ else:
                     <div class="summary-card">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                             <div>
-                                <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Content Intent</div>
+                                <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Article Intent</div>
                                 <div class="metric-value" >{performance_summary.get('content_intent', 'Unknown').title()}</div>
                             </div>
                             <div>
@@ -1573,86 +1697,7 @@ else:
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
-    
-    # tab_index += 1
-    
-    # # TAB: PERFORMANCE
-    # with tabs[tab_index]:
-    #     st.markdown('<h2 class="section-header">📊 Performance Metrics</h2>', unsafe_allow_html=True)
 
-    #     analysis_metadata = result.get("analysis_metadata", {})
-    #     intentionality_score = calculate_intentionality_score(result)
-    #     keyword_count = len(result.get("primary_keywords", [])) + len(result.get("secondary_keywords", []))
-    #     audience_complexity = len(result.get("audience_profile", {}).get("type", []))
-    #     campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
-
-    #     # Dynamic column layout based on whether campaign analysis is enabled
-    #     if st.session_state.campaign_analysis and campaign_score is not None:
-    #         col1, col2, col3, col4 = st.columns(4)
-            
-    #         with col1:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Intention Score</div>
-    #                     <div class="metric-value">{intentionality_score}/100</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-            
-    #         with col2:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Campaign Fit</div>
-    #                     <div class="metric-value">{campaign_score}/100</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-            
-    #         with col3:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Keyword Count</div>
-    #                     <div class="metric-value">{keyword_count}</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-            
-    #         with col4:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Audience Segments</div>
-    #                     <div class="metric-value">{audience_complexity}</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-    #     else:
-    #         # Show only 3 columns when campaign analysis is disabled
-    #         col1, col2, col3 = st.columns(3)
-            
-    #         with col1:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Intention Score</div>
-    #                     <div class="metric-value">{intentionality_score}/100</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-            
-    #         with col2:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Keyword Count</div>
-    #                     <div class="metric-value">{keyword_count}</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-            
-    #         with col3:
-    #             st.markdown(f"""
-    #                 <div class="metric-card">
-    #                     <div class="metric-title">Audience Segments</div>
-    #                     <div class="metric-value">{audience_complexity}</div>
-    #                 </div>
-    #             """, unsafe_allow_html=True)
-    
-    # # Raw Data (outside of tabs, at the bottom)
-    # st.markdown('<h2 class="section-header">🔧 Raw Data</h2>', unsafe_allow_html=True)
-    # with st.expander("Raw API Response", expanded=False):
-    #     st.json(result)
 
 # Footer
 footer_message = "Content Intelligence with Optional Campaign Analysis" if st.session_state.campaign_analysis else "Content Intelligence Analysis"
