@@ -9,6 +9,7 @@ import plotly.express as px
 import re
 from urllib.parse import urlparse, urlencode
 
+
 # Page configuration
 st.set_page_config(
     page_title="🔮 Contextual Article Analyzer",
@@ -1350,7 +1351,7 @@ else:
             
             st.markdown(f"""
                 <div class="content-card">
-                    <div class="card-title">📊 Action Intent Score Analysis</div>
+                    <div class="card-title">📊 Article Intent Score Analysis</div>
                     <div style="margin-bottom: 1rem;">
                         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
                             <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
