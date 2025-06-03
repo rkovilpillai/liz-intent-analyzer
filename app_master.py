@@ -1,4 +1,4 @@
-## Contextual Article Analyzer - Enhanced UX with Sidebar Layout and Tabs
+## Contextual Article Analyzer - Enhanced UX with Sidebar Layout
 
 import streamlit as st
 import requests
@@ -8,7 +8,6 @@ from plotly.subplots import make_subplots
 import plotly.express as px
 import re
 from urllib.parse import urlparse, urlencode
-
 
 # Page configuration
 st.set_page_config(
@@ -98,7 +97,7 @@ def display_error(error_type, message, suggestions=None, technical_details=None)
 
     st.markdown(error_html, unsafe_allow_html=True)
 
-# Enhanced styling with sidebar layout and tabs
+# Enhanced styling with sidebar layout
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -107,44 +106,6 @@ st.markdown("""
         background: #181c2b;
         color: #E4E4E4;
         font-family: 'Inter', sans-serif;
-    }
-    
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        background: #272b39bf;
-        border-radius: 12px;
-        padding: 0.5rem;
-        margin-bottom: 2rem;
-        border: 1px solid #374151;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background: transparent;
-        border: none;
-        color: #9CA3AF;
-        font-family: 'Inter', sans-serif;
-        font-weight: 500;
-        font-size: 0.95rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        margin: 0 0.25rem;
-        transition: all 0.2s ease;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background: #374151;
-        color: #E4E4E4;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: #8B5CF6 !important;
-        color: #FFFFFF !important;
-        font-weight: 600;
-    }
-    
-    .stTabs [data-baseweb="tab-panel"] {
-        padding: 0;
-        background: transparent;
     }
     
     /* Sidebar styling */
@@ -195,7 +156,9 @@ st.markdown("""
     
     .sidebar-section {
         background: #272b39bf;
+        # border: 1px solid #374151;
         border-radius: 12px;
+        # padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
     
@@ -211,26 +174,26 @@ st.markdown("""
     }
             
     .st-emotion-cache-6qob1r {
-        position: relative;
-        height: 100%;
-        width: 100%;
-        overflow: overlay;
-        background-color: #181c2b;
-    }
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: overlay;
+    background-color: #181c2b;
+}
             
     .st-emotion-cache-1f3w014 {
-        vertical-align: middle;
-        overflow: hidden;
-        color: inherit;
-        fill: currentcolor;
-        display: inline-flex;
-        -webkit-box-align: center;
-        align-items: center;
-        font-size: 1.5rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        flex-shrink: 0;
-    }
+    vertical-align: middle;
+    overflow: hidden;
+    color: inherit;
+    fill: currentcolor;
+    display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+}
     
     .section-header {
         font-family: 'Inter', sans-serif;
@@ -442,169 +405,175 @@ st.markdown("""
         background: #181c2b;
     }
     
-    /* Main container for waiting state - constrained to main content area */
-    .waiting-state {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: calc(100vh - 8rem);
-        min-height: 600px;
-        width: 100%;
-        overflow: hidden;
-        padding: 0;
-        margin: 0;
-    }
+    /* Results area styling */
+.results-container {
+    min-height: 80vh;
+    background: #181c2b;
+}
 
-    /* Video background - contained within main content area */
-    .video__bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 1;
-    }
+/* Main container for waiting state - constrained to main content area */
+.waiting-state {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 8rem);
+    min-height: 600px;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
 
-    /* Content overlay - fixed positioning relative to main area */
-    .audiences-home-page__content {
-        position: fixed;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        width: 100%;
-        padding: 2rem;
-    }
+/* Video background - contained within main content area */
+.video__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
 
-    /* Logo styling */
-    .logo__home {
-        margin-bottom: 3rem;
-        max-width: 150px;
-        height: auto;
-        z-index: 11;
-    }
+/* Content overlay - fixed positioning relative to main area */
+.audiences-home-page__content {
+    position: fixed;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 2rem;
+}
 
-    /* Content wrapper */
-    .home-content__wrapper--inner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 800px;
-    }
+/* Logo styling */
+.logo__home {
+    margin-bottom: 3rem;
+    max-width: 150px;
+    height: auto;
+    z-index: 11;
+}
 
-    .home-content__wrapper--flex {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem;
-        text-align: center;
-    }
+/* Content wrapper */
+.home-content__wrapper--inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+}
 
-    /* Text styling - fixed and centered */
-    .home__text {
-        margin: 0;
-        padding: 1.5rem 2rem;
-        max-width: 700px;
-        text-align: center;
-        line-height: 45px;
-        letter-spacing: 12px;
-        color: #ffffff;
-        font-size: 24px !important;
-        font-weight: 700;
-        font-family: "Poppins", sans-serif;
-        background: #282b38b3;
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+.home-content__wrapper--flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    text-align: center;
+}
 
-    /* CTA wrapper */
-    .home-content__cta__wrapper {
-        display: flex;
-        justify-content: center;
-        margin-top: 1rem;
-    }
+/* Text styling - fixed and centered */
+.home__text {
+    margin: 0;
+    padding: 1.5rem 2rem;
+    max-width: 700px;
+    text-align: center;
+    line-height: 45px;
+    letter-spacing: 12px;
+    color: #ffffff;
+    font-size: 24px !important;
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    background: #282b38b3;
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-    /* Button styling - fixed positioning */
-    .button.home-content__cta {
-        background: rgba(0, 0, 0, 0.2);
-        border: 2px solid #ffffff;
-        color: #ffffff;
-        padding: 15px 30px;
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 30px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        backdrop-filter: blur(10px);
-    }
+/* CTA wrapper */
+.home-content__cta__wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
 
-    .button.home-content__cta:hover {
-        background: #ffffff;
-        color: #000000;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-    }
+/* Button styling - fixed positioning */
+.button.home-content__cta {
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    padding: 15px 30px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    backdrop-filter: blur(10px);
+}
 
-    /* Ensure main content area doesn't scroll when video is playing */
-    .main .block-container {
-        padding-top: 1rem !important;
-    }
+.button.home-content__cta:hover {
+    background: #ffffff;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure main content area doesn't scroll when video is playing */
+.main .block-container {
+    padding-top: 1rem !important;
+}
     section.stSidebar.st-emotion-cache {
-        background-color: rgb(35 39 54);
+    background-color: rgb(35 39 54);
     }
             
     .st-emotion-cache-1xulwhk {
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #CD574C;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #CD574C;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     }
     .st-emotion-cache-p7i6r9 {
-        font-family: "Source Sans Pro", sans-serif;
-        font-size: 1rem;
-        color: rgb(253 253 253);
-        font-weight: 900;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1rem;
+    color: rgb(253 253 253);
+    font-weight: 900;
     }
      
     .st-emotion-cache-169dgwr {
-        z-index: 999990;
-        color: rgb(255 255 255 / 60%);
-        margin-top: 0.25rem;
+    z-index: 999990;
+    color: rgb(255 255 255 / 60%);
+    margin-top: 0.25rem;
     }
             
     .st-emotion-cache-1f3w014 {
-        vertical-align: middle;
-        overflow: hidden;
-        color: inherit;
-        fill: rgb(205 87 76);
-        display: inline-flex;
-        -webkit-box-align: center;
-        align-items: center;
-        font-size: 5rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        flex-shrink: 0;
+    vertical-align: middle;
+    overflow: hidden;
+    color: inherit;
+    fill: rgb(205 87 76);
+    display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
     }
     .st-emotion-cache-102y9h7 {
-        font-family: "Source Sans Pro", sans-serif;
-        font-size: 1rem;
-        margin-bottom: -1rem;
-        color: #cd574c;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1rem;
+    margin-bottom: -1rem;
+    color: #cd574c;
     }         
     [data-testid="stSidebar"],
     [data-testid="stSidebar"] > div,
@@ -620,7 +589,7 @@ st.markdown("""
         background-color: rgb(35, 39, 54) !important;
     }       
     [data-testid="stWidgetLabel"] * {
-        color: #ffc8c8 !important;
+    color: #ffc8c8 !important;
     }
 
     </style>
@@ -847,55 +816,6 @@ def calculate_intentionality_score(result):
     
     return min(round(final_score), 100)
 
-def calculate_final_intention_score(result, campaign_relevancy=None):
-    """
-    Calculate the final intention score based on:
-    - 80% Campaign Fit Score (if available)
-    - 20% Action Intent Score
-    
-    If campaign analysis is disabled, returns only the Action Intent Score
-    """
-    # Get the action intent score (intentionality score)
-    action_intent_score = calculate_intentionality_score(result)
-    
-    # If no campaign data, return just the action intent score
-    if not campaign_relevancy:
-        return action_intent_score, "action_only"
-    
-    # Get campaign fit score
-    campaign_fit_score = campaign_relevancy.get('overall_relevancy_score', 0)
-    
-    # Calculate weighted final score: 80% campaign fit + 20% action intent
-    final_score = (campaign_fit_score * 0.8) + (action_intent_score * 0.2)
-    
-    return round(final_score), "combined"
-
-def get_final_intention_grade(score, score_type="combined"):
-    """
-    Get grade and description for the final intention score
-    """
-    if score_type == "action_only":
-        prefix = "Action Intent: "
-    else:
-        prefix = "Overall Intent: "
-    
-    if score >= 90:
-        return "A+", f"{prefix}Exceptional"
-    elif score >= 80:
-        return "A", f"{prefix}Excellent"
-    elif score >= 70:
-        return "B+", f"{prefix}Very Good"
-    elif score >= 60:
-        return "B", f"{prefix}Good"
-    elif score >= 50:
-        return "C+", f"{prefix}Fair"
-    elif score >= 40:
-        return "C", f"{prefix}Below Average"
-    elif score >= 30:
-        return "D", f"{prefix}Poor"
-    else:
-        return "F", f"{prefix}Very Poor"
-
 def get_intentionality_grade(score):
     if score >= 85:
         return "A+", "Very High Action Intent"
@@ -917,7 +837,7 @@ def get_intentionality_grade(score):
 def calculate_content_score(result):
     score = 0
     confidence = result.get('intention', {}).get('confidence', 'Low')
-    confidence_scores = {'high': 40, 'medium': 30, 'low': 20}
+    confidence_scores = {'High': 40, 'Medium': 30, 'Low': 20}
     score += confidence_scores.get(confidence, 20)
     
     primary_kw = len(result.get('primary_keywords', []))
@@ -986,6 +906,14 @@ with st.sidebar:
     vertical = ""
     
     if st.session_state.campaign_analysis:
+        # st.markdown("""
+        #     <div class="campaign-fields">
+        #         <div style="text-align: center; margin-bottom: 1rem;">
+        #             <span style="color: #f7c3dc; font-weight: 600;">📝 Campaign Context</span>
+        #         </div>
+        #     </div>
+        # """, unsafe_allow_html=True)
+        
         campaign_definition = st.text_area(
             "Campaign Definition",
             placeholder="e.g., Summer running shoes for marathon training targeting serious athletes aged 25-45",
@@ -1158,6 +1086,9 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # MAIN CONTENT AREA - Results Section (80% width)
+# st.markdown('<h1 class="main-header">Contextual Article Analyzer</h1>', unsafe_allow_html=True)
+# st.markdown('<p class="subtitle">Liz - powered content intelligence with optional campaign analysis</p>', unsafe_allow_html=True)
+
 # Results Container
 if not st.session_state.analysis_complete or st.session_state.analysis_results is None:
     # Waiting state
@@ -1180,361 +1111,108 @@ if not st.session_state.analysis_complete or st.session_state.analysis_results i
         </div>
     """, unsafe_allow_html=True)
 else:
-    # Display results with tabs
+    # Display results
     result = st.session_state.analysis_results
     
-    # Create dynamic tab list based on campaign analysis toggle
-    tab_list = ["📊 Overview", "👤 Audience 📈 Insights", "🔑  Keywords",]
+    # 📊 CONTENT INTELLIGENCE (Always shown)
+    st.markdown('<h2 class="section-header">📊 Content Intelligence</h2>', unsafe_allow_html=True)
     
-    # Add campaign tab if campaign analysis is enabled and data exists
-    campaign_relevancy = result.get('campaign_relevancy', {})
-    if st.session_state.campaign_analysis and campaign_relevancy:
-        tab_list.insert(2, "🎯 Campaign")
+    col1, col2, col3, col4, col5 = st.columns(5)
     
-    # Create tabs
-    tabs = st.tabs(tab_list)
-    
-    # TAB 1: OVERVIEW
-    with tabs[0]:
-        st.markdown('<h2 class="section-header">📊 Content Intelligence Overview</h2>', unsafe_allow_html=True)
+    with col1:
+        intention = result.get('intention', {})
+        primary_intent = intention.get('primary', 'Unknown')
+        confidence = intention.get('confidence', 'Unknown')
         
-        # Key metrics row
-        col1, col2, col3, col4, col5 = st.columns(5)
-        
-        with col1:
-            intention = result.get('intention', {})
-            primary_intent = intention.get('primary', 'Unknown')
-            confidence = intention.get('confidence', 'Unknown')
-            
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-title">Intent</div>
-                    <div class="metric-value">{primary_intent.title()}</div>
-                    <div class="metric-subtitle">
-                        <span style="color: #9CA3AF;">{confidence}</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            category = result.get('tier1_category', 'Unknown')
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-title">Category</div>
-                    <div class="metric-value">{category}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with col3:
-            demographics = result.get('audience_profile', {}).get('demographics', {})
-            age_range = demographics.get('age_range', 'Unknown')
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-title">Age Range</div>
-                    <div class="metric-value">{age_range}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with col4:
-            income = demographics.get('income_range', 'Unknown')
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-title">Income Range</div>
-                    <div class="metric-value">{income}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        
-        with col5:
-            campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
-            if st.session_state.campaign_analysis and campaign_score is not None:
-                # Final Intentionality Score
-                final_intentionality_score,score_type = calculate_final_intention_score(result,campaign_relevancy)
-                final_grade, final_grade_desc = get_final_intention_grade(final_intentionality_score,score_type)
-                intentionality_score = calculate_intentionality_score(result)
-                grade, grade_desc = get_intentionality_grade(intentionality_score)
-                
-                if final_intentionality_score >= 70:
-                    score_color = "#10B981"
-                elif final_intentionality_score >= 50:
-                    score_color = "#F59E0B"
-                else:
-                    score_color = "#EF4444"
-                    
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Intention score</div>
-                        <div class="metric-value" style="color: {score_color};">{final_intentionality_score}/100</div>
-                        <div class="metric-subtitle">
-                            <span style="color: {score_color}; font-weight: 600;">{final_grade}</span>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-            else:
-                # Intentionality Score
-                intentionality_score = calculate_intentionality_score(result)
-                grade, grade_desc = get_intentionality_grade(intentionality_score)
-                
-                if intentionality_score >= 75:
-                    score_color = "#10B981"
-                elif intentionality_score >= 50:
-                    score_color = "#F59E0B"
-                else:
-                    score_color = "#EF4444"
-                    
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Article Intent</div>
-                        <div class="metric-value" style="color: {score_color};">{intentionality_score}/100</div>
-                        <div class="metric-subtitle">
-                            <span style="color: {score_color}; font-weight: 600;">{grade}</span>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-        
-        # Content Summary
-        st.markdown('<h3 class="section-header">📝 Summary</h3>', unsafe_allow_html=True)
-        
-        summary = result.get('summary_rationale', 'No summary available')
         st.markdown(f"""
-            <div class="summary-card">
-                <div class="summary-text">{summary}</div>
+            <div class="metric-card">
+                <div class="metric-title">Intent</div>
+                <div class="metric-value">{primary_intent.title()}</div>
+                <div class="metric-subtitle">
+                    <span style="color: #9CA3AF;">{confidence}</span>
+                </div>
             </div>
         """, unsafe_allow_html=True)
-        
-        # Intentionality Score Explanation
-        # Dynamic Intentionality Score Explanation
-        campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
-
-        if st.session_state.campaign_analysis and campaign_score is not None:
-            # Final Intention Score Explanation (Combined Score)
-            final_intentionality_score, score_type = calculate_final_intention_score(result, campaign_relevancy)
-            final_grade, final_grade_desc = get_final_intention_grade(final_intentionality_score, score_type)
-            
-            # Calculate individual components for breakdown
-            action_intent_score = calculate_intentionality_score(result)
-            
-            st.markdown(f"""
-                <div class="content-card">
-                    <div class="card-title">📊 Overall Intention Score Analysis</div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                            <span style="font-size: 2rem; color: {'#10B981' if final_intentionality_score >= 75 else '#F59E0B' if final_intentionality_score >= 50 else '#EF4444'};">{final_grade}</span>
-                            <div>
-                                <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{final_grade_desc}</div>
-                                <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {final_intentionality_score}/100</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="color: #D1D5DB; line-height: 1.5;">
-                        <strong>What this means:</strong> This comprehensive score combines campaign relevancy (80%) with user action intent (20%) to predict overall content performance for your specific campaign objectives.
-                        <br><br>
-                        <strong>Score Breakdown:</strong>
-                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                            <li><strong>Campaign Fit:</strong> {campaign_score}/100 (80% weight) - How well the content aligns with your campaign goals</li>
-                            <li><strong>Action Intent:</strong> {action_intent_score}/100 (20% weight) - Likelihood of users taking action based on content intent</li>
-                        </ul>
-                        <br>
-                        <strong>Calculation:</strong> ({campaign_score} × 0.8) + ({action_intent_score} × 0.2) = {final_intentionality_score}
-                        <br><br>
-                        <strong>Content Intent Distribution:</strong>
-                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                            {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
-                        </ul>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        else:
-            # Action Intent Score Explanation (Content Analysis Only)
-            intentionality_score = calculate_intentionality_score(result)
-            grade, grade_desc = get_intentionality_grade(intentionality_score)
-            
-            st.markdown(f"""
-                <div class="content-card">
-                    <div class="card-title">📊 Article Intent Score Analysis</div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                            <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
-                            <div>
-                                <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{grade_desc}</div>
-                                <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {intentionality_score}/100</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="color: #D1D5DB; line-height: 1.5;">
-                        <strong>What this means:</strong> This score predicts the likelihood of users taking action (clicking, buying, engaging) based on the article's intent distribution and confidence level.
-                        <br><br>
-                        <strong>Intent Breakdown:</strong>
-                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                            {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
-                        </ul>
-                        <br>
-                        <div style="background: #374151; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                            <strong>💡 Tip:</strong> Enable "Campaign Relevancy Analysis" in the sidebar to get a comprehensive score that includes how well this content fits your specific campaign objectives.
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown('<h2 class="section-header">📊 Performance Metrics</h2>', unsafe_allow_html=True)
-
-        analysis_metadata = result.get("analysis_metadata", {})
+    
+    with col2:
+        category = result.get('tier1_category', 'Unknown')
+        st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title">Category</div>
+                <div class="metric-value">{category}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        demographics = result.get('audience_profile', {}).get('demographics', {})
+        age_range = demographics.get('age_range', 'Unknown')
+        st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title">Age Range</div>
+                <div class="metric-value">{age_range}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        income = demographics.get('income_range', 'Unknown')
+        st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title">Income Range</div>
+                <div class="metric-value">{income}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with col5:
+        # Intentionality Score
         intentionality_score = calculate_intentionality_score(result)
-        keyword_count = len(result.get("primary_keywords", [])) + len(result.get("secondary_keywords", []))
-        audience_complexity = len(result.get("audience_profile", {}).get("type", []))
-        campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
-
-        # Dynamic column layout based on whether campaign analysis is enabled
-        if st.session_state.campaign_analysis and campaign_score is not None:
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Article Intent</div>
-                        <div class="metric-value">{intentionality_score}/100</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Campaign Relevancy</div>
-                        <div class="metric-value">{campaign_score}/100</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with col3:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Keyword Count</div>
-                        <div class="metric-value">{keyword_count}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with col4:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Audience Segments</div>
-                        <div class="metric-value">{audience_complexity}</div>
-                    </div>
-                """, unsafe_allow_html=True)
+        grade, grade_desc = get_intentionality_grade(intentionality_score)
+        
+        if intentionality_score >= 75:
+            score_color = "#10B981"
+        elif intentionality_score >= 50:
+            score_color = "#F59E0B"
         else:
-            # Show only 3 columns when campaign analysis is disabled
-            col1, col2, col3 = st.columns(3)
+            score_color = "#EF4444"
             
-            with col1:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Intention Score</div>
-                        <div class="metric-value">{intentionality_score}/100</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Keyword Count</div>
-                        <div class="metric-value">{keyword_count}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with col3:
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-title">Audience Segments</div>
-                        <div class="metric-value">{audience_complexity}</div>
-                    </div>
-                """, unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title">Action Score</div>
+                <div class="metric-value" style="color: {score_color};">{intentionality_score}/100</div>
+                <div class="metric-subtitle">
+                    <span style="color: {score_color}; font-weight: 600;">{grade}</span>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
     
-    # TAB 2: ANALYTICS
-    with tabs[1]:
-        st.markdown('<h2 class="section-header">📈 Audience Analytics </h2>', unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            age_chart = create_age_chart(demographics)
-            if age_chart:
-                st.plotly_chart(age_chart, use_container_width=True)
-        
-        with col2:
-            gender_chart = create_gender_chart(demographics)
-            if gender_chart:
-                st.plotly_chart(gender_chart, use_container_width=True)
-        
-        with col3:
-            intentionality_data = result.get('intentionality_breakdown', {})
-            if intentionality_data:
-                intent_chart = create_intentionality_chart(intentionality_data)
-                if intent_chart:
-                    st.plotly_chart(intent_chart, use_container_width=True)
-        st.markdown('<h2 class="section-header">👤 Audience Profile</h2>', unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            audience_types = result.get('audience_profile', {}).get('type', ['Unknown'])
-            audience_text = ', '.join(audience_types) if isinstance(audience_types, list) else str(audience_types)
-            
-            regions = demographics.get('region', ['Unknown'])
-            region_text = ', '.join(regions) if isinstance(regions, list) else str(regions)
-            
-            st.markdown(f"""
-                <div class="content-card">
-                    <div class="card-title">Demographics</div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Audience Type</div>
-                        <div style="color: #E4E4E4; font-weight: 500;">{audience_text}</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Region</div>
-                        <div style="color: #E4E4E4; font-weight: 500;">{region_text}</div>
-                    </div>
-                    <div>
-                        <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Gender</div>
-                        <div style="color: #E4E4E4; font-weight: 500;">{demographics.get('gender', 'Unknown')}</div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            profession = demographics.get('profession', 'Unknown')
-            intent_signal = result.get('audience_profile', {}).get('intent_signal', 'No signal detected')
-            
-            st.markdown(f"""
-                <div class="content-card">
-                    <div class="card-title">Profile Details</div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Profession</div>
-                        <div style="color: #E4E4E4; font-weight: 500;">{profession}</div>
-                    </div>
-                    <div>
-                        <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Intent Signal</div>
-                        <div style="color: #E4E4E4; font-weight: 500; line-height: 1.5;">{intent_signal}</div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-         # Interest Groups
-        interest_groups = result.get('audience_profile', {}).get('interest_groups', [])
-        if interest_groups:
-            st.markdown('<h3 class="section-header">👥 Interest Groups</h3>', unsafe_allow_html=True)
-            st.markdown(f"""
-                <div class="content-card">
-                    <div class="card-title">Interest Categories</div>
-                    <div style="margin-top: 1rem;">
-                        {''.join([f'<span class="tag tag-secondary">{group}</span>' for group in interest_groups])}
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+    # Analytics Charts
+    st.markdown('<h2 class="section-header">📈 Analytics</h2>', unsafe_allow_html=True)
     
-    # TAB 3: CAMPAIGN (only if campaign analysis is enabled and data exists)
-    tab_index = 2
-    if st.session_state.campaign_analysis and campaign_relevancy:
-        with tabs[tab_index]:
-            st.markdown('<h2 class="section-header">🎯 Campaign Relevancy Analysis</h2>', unsafe_allow_html=True)
-            
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        age_chart = create_age_chart(demographics)
+        if age_chart:
+            st.plotly_chart(age_chart, use_container_width=True)
+    
+    with col2:
+        gender_chart = create_gender_chart(demographics)
+        if gender_chart:
+            st.plotly_chart(gender_chart, use_container_width=True)
+    
+    with col3:
+        intentionality_data = result.get('intentionality_breakdown', {})
+        if intentionality_data:
+            intent_chart = create_intentionality_chart(intentionality_data)
+            if intent_chart:
+                st.plotly_chart(intent_chart, use_container_width=True)
+    
+    # 🎯 CAMPAIGN ANALYSIS SECTION (Only shown if campaign analysis was enabled)
+    if st.session_state.campaign_analysis:
+        st.markdown('<h2 class="section-header">🎯 Campaign Relevancy Analysis</h2>', unsafe_allow_html=True)
+        
+        campaign_relevancy = result.get('campaign_relevancy', {})
+        
+        if campaign_relevancy:
             overall_score = campaign_relevancy.get('overall_relevancy_score', 0)
             relevancy_level = campaign_relevancy.get('relevancy_level', 'unknown')
             recommendation = campaign_relevancy.get('recommendation', 'consider')
@@ -1551,7 +1229,7 @@ else:
                 <div class="content-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                         <div>
-                            <h3 style="color: #f7c3dc; margin: 0; font-size: 1.25rem;">Campaign Relevancy Assessment</h3>
+                            <h3 style="color: #f7c3dc; margin: 0; font-size: 1.25rem;">Campaign Fit Assessment</h3>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{recommendation_emoji}</div>
@@ -1607,98 +1285,277 @@ else:
                         <div class="metric-subtitle">Industry alignment</div>
                     </div>
                 """, unsafe_allow_html=True)
-            
-            # Performance Summary for campaign
-            performance_summary = result.get('performance_summary', {})
-            if performance_summary:
-                st.markdown('<h3 class="section-header">🎯 Performance Summary</h3>', unsafe_allow_html=True)
-                
-                st.markdown(f"""
-                    <div class="summary-card">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                            <div>
-                                <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Article Intent</div>
-                                <div class="metric-value" >{performance_summary.get('content_intent', 'Unknown').title()}</div>
-                            </div>
-                            <div>
-                                <div class="metric-title" style=" font-size: 0.875rem; margin-bottom: 0.25rem;">Campaign Suitability</div>
-                                <div class="metric-value" >{performance_summary.get('campaign_suitability', 'Unknown').title()}</div>
-                            </div>
-                            <div>
-                                <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Overall Relevancy</div>
-                                <div class="metric-value" >{performance_summary.get('overall_relevancy', 'Unknown').title()}</div>
-                            </div>
-                            <div>
-                                <div class="metric-title" style="margin-bottom: 0.25rem;">Final Recommendation</div>
-                                <div class="metric-value" style="color: {'#10B981' if 'recommend' in performance_summary.get('recommendation', '') else '#F59E0B'}; font-weight: 600;">
-                                    {performance_summary.get('recommendation', 'Unknown').replace('_', ' ').title()}
-                                </div>
-                            </div>
-                        </div>
+        else:
+            # Show message if campaign analysis was requested but no data returned
+            st.markdown("""
+                <div class="content-card">
+                    <div style="text-align: center; color: #9CA3AF;">
+                        <h3>Campaign Analysis Unavailable</h3>
+                        <p>Campaign relevancy data was not returned by the API.</p>
                     </div>
-                """, unsafe_allow_html=True)
-        
-        tab_index += 1
+                </div>
+            """, unsafe_allow_html=True)
     
-    # TAB: KEYWORDS
-    with tabs[tab_index]:
-        st.markdown('<h2 class="section-header">🔑 Keywords</h2>', unsafe_allow_html=True)
+    # Content Summary
+    st.markdown('<h2 class="section-header">📝 Summary</h2>', unsafe_allow_html=True)
+    
+    summary = result.get('summary_rationale', 'No summary available')
+    st.markdown(f"""
+        <div class="summary-card">
+            <div class="summary-text">{summary}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Keywords
+    st.markdown('<h2 class="section-header">🔑 Keywords</h2>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        primary_keywords = result.get('primary_keywords', [])
+        if primary_keywords:
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">Primary Keywords</div>
+                    <div style="margin-top: 1rem;">
+                        {''.join([f'<span class="tag">{kw}</span>' for kw in primary_keywords])}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    with col2:
+        secondary_keywords = result.get('secondary_keywords', [])
+        if secondary_keywords:
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">Secondary Keywords</div>
+                    <div style="margin-top: 1rem;">
+                        {''.join([f'<span class="tag tag-secondary">{kw}</span>' for kw in secondary_keywords])}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    with col3:
+        # Keyword Distribution Chart
+        if primary_keywords or secondary_keywords:
+            keyword_chart = create_keyword_chart(primary_keywords, secondary_keywords)
+            if keyword_chart:
+                st.plotly_chart(keyword_chart, use_container_width=True)
+    
+    # Matching Keywords (only show if campaign analysis was enabled)
+    if st.session_state.campaign_analysis and campaign_relevancy:
+        matching_keywords = campaign_relevancy.get('matching_keywords', [])
+        if matching_keywords:
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">🎯 Campaign Keyword Matches</div>
+                    <div style="margin-top: 1rem;">
+                        {''.join([f'<span class="tag" style="background: #10B981 !important; color: #FFFFFF !important;">{kw}</span>' for kw in matching_keywords])}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+                <div class="content-card">
+                    <div class="card-title">🎯 Campaign Keyword Matches</div>
+                    <div style="margin-top: 1rem; color: #9CA3AF; font-style: italic;">
+                        No matching keywords found between content and campaign
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    # Interest Groups
+    interest_groups = result.get('audience_profile', {}).get('interest_groups', [])
+    if interest_groups:
+        st.markdown('<h2 class="section-header">👥 Interest Groups</h2>', unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="content-card">
+                <div class="card-title">Interest Categories</div>
+                <div style="margin-top: 1rem;">
+                    {''.join([f'<span class="tag tag-secondary">{group}</span>' for group in interest_groups])}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Audience Profile
+    st.markdown('<h2 class="section-header">👤 Audience Profile</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        audience_types = result.get('audience_profile', {}).get('type', ['Unknown'])
+        audience_text = ', '.join(audience_types) if isinstance(audience_types, list) else str(audience_types)
         
+        regions = demographics.get('region', ['Unknown'])
+        region_text = ', '.join(regions) if isinstance(regions, list) else str(regions)
+        
+        st.markdown(f"""
+            <div class="content-card">
+                <div class="card-title">Demographics</div>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Audience Type</div>
+                    <div style="color: #E4E4E4; font-weight: 500;">{audience_text}</div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Region</div>
+                    <div style="color: #E4E4E4; font-weight: 500;">{region_text}</div>
+                </div>
+                <div>
+                    <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Gender</div>
+                    <div style="color: #E4E4E4; font-weight: 500;">{demographics.get('gender', 'Unknown')}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        profession = demographics.get('profession', 'Unknown')
+        intent_signal = result.get('audience_profile', {}).get('intent_signal', 'No signal detected')
+        
+        st.markdown(f"""
+            <div class="content-card">
+                <div class="card-title">Profile Details</div>
+                <div style="margin-bottom: 1rem;">
+                    <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Profession</div>
+                    <div style="color: #E4E4E4; font-weight: 500;">{profession}</div>
+                </div>
+                <div>
+                    <div style="color: #9CA3AF; font-size: 0.875rem; margin-bottom: 0.25rem;">Intent Signal</div>
+                    <div style="color: #E4E4E4; font-weight: 500; line-height: 1.5;">{intent_signal}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # Performance Metrics
+    st.markdown('<h2 class="section-header">📊 Performance Metrics</h2>', unsafe_allow_html=True)
+
+    analysis_metadata = result.get("analysis_metadata", {})
+    intentionality_score = calculate_intentionality_score(result)
+    keyword_count = len(result.get("primary_keywords", [])) + len(result.get("secondary_keywords", []))
+    audience_complexity = len(result.get("audience_profile", {}).get("type", []))
+    campaign_score = campaign_relevancy.get('overall_relevancy_score', 0) if st.session_state.campaign_analysis and campaign_relevancy else None
+
+    # Dynamic column layout based on whether campaign analysis is enabled
+    if st.session_state.campaign_analysis and campaign_score is not None:
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Intention Score</div>
+                    <div class="metric-value">{intentionality_score}/100</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Campaign Fit</div>
+                    <div class="metric-value">{campaign_score}/100</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Keyword Count</div>
+                    <div class="metric-value">{keyword_count}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Audience Segments</div>
+                    <div class="metric-value">{audience_complexity}</div>
+                </div>
+            """, unsafe_allow_html=True)
+    else:
+        # Show only 3 columns when campaign analysis is disabled
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            primary_keywords = result.get('primary_keywords', [])
-            if primary_keywords:
-                st.markdown(f"""
-                    <div class="content-card">
-                        <div class="card-title">Primary Keywords</div>
-                        <div style="margin-top: 1rem;">
-                            {''.join([f'<span class="tag">{kw}</span>' for kw in primary_keywords])}
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Intention Score</div>
+                    <div class="metric-value">{intentionality_score}/100</div>
+                </div>
+            """, unsafe_allow_html=True)
         
         with col2:
-            secondary_keywords = result.get('secondary_keywords', [])
-            if secondary_keywords:
-                st.markdown(f"""
-                    <div class="content-card">
-                        <div class="card-title">Secondary Keywords</div>
-                        <div style="margin-top: 1rem;">
-                            {''.join([f'<span class="tag tag-secondary">{kw}</span>' for kw in secondary_keywords])}
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Keyword Count</div>
+                    <div class="metric-value">{keyword_count}</div>
+                </div>
+            """, unsafe_allow_html=True)
         
         with col3:
-            # Keyword Distribution Chart
-            if primary_keywords or secondary_keywords:
-                keyword_chart = create_keyword_chart(primary_keywords, secondary_keywords)
-                if keyword_chart:
-                    st.plotly_chart(keyword_chart, use_container_width=True)
-        
-        # Matching Keywords (only show if campaign analysis was enabled)
-        if st.session_state.campaign_analysis and campaign_relevancy:
-            matching_keywords = campaign_relevancy.get('matching_keywords', [])
-            if matching_keywords:
-                st.markdown(f"""
-                    <div class="content-card">
-                        <div class="card-title">🎯 Campaign Keyword Matches</div>
-                        <div style="margin-top: 1rem;">
-                            {''.join([f'<span class="tag" style="background: #10B981 !important; color: #FFFFFF !important;">{kw}</span>' for kw in matching_keywords])}
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                    <div class="content-card">
-                        <div class="card-title">🎯 Campaign Keyword Matches</div>
-                        <div style="margin-top: 1rem; color: #9CA3AF; font-style: italic;">
-                            No matching keywords found between content and campaign
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-title">Audience Segments</div>
+                    <div class="metric-value">{audience_complexity}</div>
+                </div>
+            """, unsafe_allow_html=True)
 
+    # Intentionality Score Explanation
+    grade, grade_desc = get_intentionality_grade(intentionality_score)
+    st.markdown(f"""
+        <div class="content-card">
+            <div class="card-title">📊 Intentionality Score Analysis</div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                    <span style="font-size: 2rem; color: {'#10B981' if intentionality_score >= 75 else '#F59E0B' if intentionality_score >= 50 else '#EF4444'};">{grade}</span>
+                    <div>
+                        <div style="color: #FFFFFF; font-weight: 600; font-size: 1.1rem;">{grade_desc}</div>
+                        <div style="color: #9CA3AF; font-size: 0.9rem;">Score: {intentionality_score}/100</div>
+                    </div>
+                </div>
+            </div>
+            <div style="color: #D1D5DB; line-height: 1.5;">
+                <strong>What this means:</strong> This score predicts the likelihood of users taking action (clicking, buying, engaging) based on the article's intent distribution and confidence level.
+                <br><br>
+                <strong>Intent Breakdown:</strong>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
+                </ul>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Performance Summary (only show if campaign analysis was enabled)
+    if st.session_state.campaign_analysis:
+        performance_summary = result.get('performance_summary', {})
+        if performance_summary:
+            st.markdown('<h2 class="section-header">🎯 Performance Summary</h2>', unsafe_allow_html=True)
+            
+            st.markdown(f"""
+                <div class="summary-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div>
+                            <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Content Intent</div>
+                            <div class="metric-value" >{performance_summary.get('content_intent', 'Unknown').title()}</div>
+                        </div>
+                        <div>
+                            <div class="metric-title" style=" font-size: 0.875rem; margin-bottom: 0.25rem;">Campaign Suitability</div>
+                            <div class="metric-value" >{performance_summary.get('campaign_suitability', 'Unknown').title()}</div>
+                        </div>
+                        <div>
+                            <div class="metric-title" style="font-size: 0.875rem; margin-bottom: 0.25rem;">Overall Relevancy</div>
+                            <div class="metric-value" >{performance_summary.get('overall_relevancy', 'Unknown').title()}</div>
+                        </div>
+                        <div>
+                            <div class="metric-title" style="margin-bottom: 0.25rem;">Final Recommendation</div>
+                            <div class="metric-value" style="color: {'#10B981' if 'recommend' in performance_summary.get('recommendation', '') else '#F59E0B'}; font-weight: 600;">
+                                {performance_summary.get('recommendation', 'Unknown').replace('_', ' ').title()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    # Raw Data
+    with st.expander("Raw API Response", expanded=False):
+        st.json(result)
 
 # Footer
 footer_message = "Content Intelligence with Optional Campaign Analysis" if st.session_state.campaign_analysis else "Content Intelligence Analysis"
