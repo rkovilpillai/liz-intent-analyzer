@@ -1039,7 +1039,7 @@ with st.sidebar:
                         full_api_url = f"{api_url}?{encoded_params}"
                         
                         # Try GET first, then POST
-                        response = requests.get(full_api_url, timeout=30)
+                        response = requests.get(full_api_url, timeout=90)
                         
                         if response.status_code == 200:
                             try:
@@ -1092,7 +1092,7 @@ with st.sidebar:
                         full_api_url = f"{api_url}?{encoded_params}"
                         
                         # Try GET first, then POST
-                        response = requests.get(full_api_url, timeout=30)
+                        response = requests.get(full_api_url, timeout=90)
                         
                         if response.status_code == 200:
                             try:
