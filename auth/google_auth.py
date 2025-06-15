@@ -26,7 +26,7 @@ def get_redirect_uri():
     """Get redirect URI based on environment"""
     if is_cloud():
         # TODO: Replace 'your-app-name' with your actual Streamlit app name
-        return 'https://your-app-name.streamlit.app/'
+        return 'https://liz-intent-analyzer-test.streamlit.app/'
     else:
         return 'http://localhost:8501/'
 
