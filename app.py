@@ -1334,9 +1334,6 @@ else:
                             <li><strong>Campaign Fit:</strong> {campaign_score}/100 (80% weight) - How well the content aligns with your campaign goals</li>
                             <li><strong>Action Intent:</strong> {action_intent_score}/100 (20% weight) - Likelihood of users taking action based on content intent</li>
                         </ul>
-                        <br>
-                        <strong>Calculation:</strong> ({campaign_score} × 0.8) + ({action_intent_score} × 0.2) = {final_intentionality_score}
-                        <br><br>
                         <strong>Content Intent Distribution:</strong>
                         <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
                             {"".join([f"<li><strong>{intent.title()}:</strong> {percent}% (Weight: {['Transactional: 95pts', 'Commercial: 75pts', 'Navigational: 45pts', 'Informational: 15pts'][['transactional', 'commercial', 'navigational', 'informational'].index(intent.lower())]})</li>" for intent, percent in result.get('intentionality_breakdown', {}).items() if percent > 0])}
@@ -1426,7 +1423,7 @@ else:
             with col1:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div class="metric-title">Intention Score</div>
+                        <div class="metric-title">Article Intent</div>
                         <div class="metric-value">{intentionality_score}/100</div>
                     </div>
                 """, unsafe_allow_html=True)
