@@ -1,6 +1,4 @@
-# QUICK TEST - Force production mode temporarily
-# Replace your auth/google_auth.py with this simplified version
-
+# auth/google_auth.py - COMPLETE FINAL VERSION
 import streamlit as st
 import json
 import os
@@ -8,10 +6,16 @@ import webbrowser
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 
+# Simple cloud detection
 def is_cloud():
-    """Simplified cloud detection"""
-    return os.path.exists("/mount/src")
+    """Detect if running in Streamlit Cloud"""
+    return (
+        os.path.exists("/mount/src") or  # Streamlit Cloud path
+        "STREAMLIT_CLOUD" in os.environ or
+        os.environ.get("STREAMLIT_SHARING_MODE") == "running"
+    )
 
+# Settings
 SCOPES = [
     'openid', 
     'https://www.googleapis.com/auth/userinfo.email', 
@@ -19,70 +23,77 @@ SCOPES = [
 ]
 
 def get_redirect_uri():
-    """FORCE production URI for testing"""
-    # Temporarily always return production URI
-    return 'https://liz-intent-analyzer-test.streamlit.app/'
+    """Get redirect URI based on environment"""
+    if is_cloud():
+        # EXACT match with Google Cloud Console
+        return 'https://liz-intent-analyzer-test.streamlit.app/'
+    else:
+        return 'http://localhost:8501/'
 
 AUTH_STORAGE_FILE = '.streamlit_auth.json'
 
 def get_flow():
-    """Simplified flow creation"""
+    """Create Flow - using secrets in cloud, JSON file locally"""
     redirect_uri = get_redirect_uri()
     
-    # Always try secrets first (even locally for testing)
-    try:
-        client_config = {
-            "web": {
-                "client_id": st.secrets["GOOGLE_CLIENT_ID"],
-                "client_secret": st.secrets["GOOGLE_CLIENT_SECRET"],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [redirect_uri]
+    if is_cloud():
+        # In Streamlit Cloud - use secrets
+        try:
+            client_config = {
+                "web": {
+                    "client_id": st.secrets["GOOGLE_CLIENT_ID"],
+                    "client_secret": st.secrets["GOOGLE_CLIENT_SECRET"],
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "redirect_uris": [redirect_uri]
+                }
             }
-        }
-        return Flow.from_client_config(
-            client_config,
-            scopes=SCOPES,
-            redirect_uri=redirect_uri
-        )
-    except KeyError as e:
-        if is_cloud():
-            st.error(f"Missing Streamlit Cloud secret: {e}")
-            st.error("Please check your Streamlit Cloud secrets configuration")
-        else:
-            # Fallback to local file for development
-            try:
-                return Flow.from_client_secrets_file(
-                    "client_secret.json",
-                    scopes=SCOPES,
-                    redirect_uri=redirect_uri
-                )
-            except FileNotFoundError:
-                st.error("No credentials found - check client_secret.json or Streamlit secrets")
-        st.stop()
+            return Flow.from_client_config(
+                client_config,
+                scopes=SCOPES,
+                redirect_uri=redirect_uri
+            )
+        except KeyError as e:
+            st.error(f"Missing secret: {e}")
+            st.error("Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Streamlit Cloud secrets")
+            st.stop()
+    else:
+        # Local development - use JSON file
+        try:
+            return Flow.from_client_secrets_file(
+                "client_secret.json",
+                scopes=SCOPES,
+                redirect_uri=redirect_uri
+            )
+        except FileNotFoundError:
+            st.error("client_secret.json not found. Please add your Google OAuth credentials.")
+            st.stop()
 
 def save_credentials_to_file(credentials_dict):
     try:
         with open(AUTH_STORAGE_FILE, 'w') as f:
             json.dump(credentials_dict, f)
-    except Exception:
-        pass  # Ignore save errors in production
+    except Exception as e:
+        if not is_cloud():
+            st.error(f"Failed to save credentials: {e}")
 
 def load_credentials_from_file():
     try:
         if os.path.exists(AUTH_STORAGE_FILE):
             with open(AUTH_STORAGE_FILE, 'r') as f:
                 return json.load(f)
-    except Exception:
-        pass
+    except Exception as e:
+        if not is_cloud():
+            st.error(f"Failed to load credentials: {e}")
     return None
 
 def delete_credentials_file():
     try:
         if os.path.exists(AUTH_STORAGE_FILE):
             os.remove(AUTH_STORAGE_FILE)
-    except Exception:
-        pass
+    except Exception as e:
+        if not is_cloud():
+            st.error(f"Failed to delete credentials: {e}")
 
 def handle_oauth_callback():
     if 'code' in st.query_params:
@@ -116,18 +127,15 @@ def login_button_clicked():
             include_granted_scopes='true'
         )
         
-        # Show environment info for debugging
-        st.info(f"Environment: {'Cloud' if is_cloud() else 'Local'}")
-        st.info(f"Redirect URI: {get_redirect_uri()}")
-        
         if is_cloud():
-            st.markdown("### 🔗 Click to login:")
+            # In cloud - provide a direct link
+            st.markdown("### 🔗 Click the link below to login:")
             st.markdown(f"**[🚀 Login with Google]({authorization_url})**")
+            st.info("👆 Click the link above to login with Google. After logging in, you'll be redirected back to this app.")
         else:
-            st.markdown("### 🔗 Click to login:")
-            st.markdown(f"**[🚀 Login with Google]({authorization_url})**")
-            # webbrowser.open_new_tab(authorization_url)  # Comment out for testing
-            
+            # Local - open in browser
+            webbrowser.open_new_tab(authorization_url)
+            st.info("Check your browser for Google login. After logging in, you'll be redirected back here.")
     except Exception as e:
         st.error(f"Login failed: {e}")
 
