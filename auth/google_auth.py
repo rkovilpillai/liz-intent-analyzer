@@ -1,4 +1,4 @@
-# auth/google_auth.py
+# auth/google_auth.py - COMPLETE FINAL VERSION
 import streamlit as st
 import json
 import os
@@ -25,7 +25,7 @@ SCOPES = [
 def get_redirect_uri():
     """Get redirect URI based on environment"""
     if is_cloud():
-        # TODO: Replace 'your-app-name' with your actual Streamlit app name
+        # EXACT match with Google Cloud Console
         return 'https://liz-intent-analyzer-test.streamlit.app/'
     else:
         return 'http://localhost:8501/'
@@ -74,7 +74,7 @@ def save_credentials_to_file(credentials_dict):
         with open(AUTH_STORAGE_FILE, 'w') as f:
             json.dump(credentials_dict, f)
     except Exception as e:
-        if not is_cloud():  # Only show error locally
+        if not is_cloud():
             st.error(f"Failed to save credentials: {e}")
 
 def load_credentials_from_file():
@@ -83,7 +83,7 @@ def load_credentials_from_file():
             with open(AUTH_STORAGE_FILE, 'r') as f:
                 return json.load(f)
     except Exception as e:
-        if not is_cloud():  # Only show error locally
+        if not is_cloud():
             st.error(f"Failed to load credentials: {e}")
     return None
 
@@ -92,7 +92,7 @@ def delete_credentials_file():
         if os.path.exists(AUTH_STORAGE_FILE):
             os.remove(AUTH_STORAGE_FILE)
     except Exception as e:
-        if not is_cloud():  # Only show error locally
+        if not is_cloud():
             st.error(f"Failed to delete credentials: {e}")
 
 def handle_oauth_callback():
@@ -128,12 +128,14 @@ def login_button_clicked():
         )
         
         if is_cloud():
-            # In cloud - provide link (webbrowser doesn't work)
-            st.markdown(f"[🚀 Click here to login with Google]({authorization_url})")
-            st.info("After logging in, you'll be redirected back to this app.")
+            # In cloud - provide a direct link
+            st.markdown("### 🔗 Click the link below to login:")
+            st.markdown(f"**[🚀 Login with Google]({authorization_url})**")
+            st.info("👆 Click the link above to login with Google. After logging in, you'll be redirected back to this app.")
         else:
             # Local - open in browser
             webbrowser.open_new_tab(authorization_url)
+            st.info("Check your browser for Google login. After logging in, you'll be redirected back here.")
     except Exception as e:
         st.error(f"Login failed: {e}")
 
@@ -170,5 +172,3 @@ def show_login_page():
         
         if st.button("🚀 Login with Google", type="primary", use_container_width=True):
             login_button_clicked()
-            if not is_cloud():
-                st.info("Check your browser for Google login. After logging in, you'll be redirected back here.")
