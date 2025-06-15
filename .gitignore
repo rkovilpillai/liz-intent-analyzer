@@ -1,3 +1,27 @@
-.streamlit/secrets.toml
-app_orig.py
-streamlit/secrets.toml
+# Authentication
+.streamlit_auth.json
+client_secret.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
